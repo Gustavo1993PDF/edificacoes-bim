@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Edificações BIM: modelagem, documentação e planejamento de projetos de construção em um único fluxo.">
+  <title>Edificações BIM | Projetos mais inteligentes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #102a2a;
+      --muted: #5e7472;
+      --paper: #f5f8f4;
+      --panel: #ffffff;
+      --mint: #c9efdc;
+      --lime: #c7ef69;
+      --teal: #176b64;
+      --line: #dbe8df;
+      --shadow: 0 24px 70px rgba(16, 42, 42, .12);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "DM Sans", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      letter-spacing: -.03em;
+    }
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--ink);
+      background: var(--lime);
+      font-size: 20px;
+    }
+    .nav-links { display: flex; gap: 28px; color: var(--muted); font-size: 14px; }
+    .nav-links a:hover { color: var(--teal); }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 70px;
+      align-items: center;
+      min-height: 650px;
+      padding: 60px 0 95px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      width: 28px;
+      height: 2px;
+      background: var(--lime);
+      content: "";
+    }
+    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; line-height: 1.08; letter-spacing: -.045em; }
+    h1 { max-width: 690px; margin: 0 0 24px; font-size: clamp(48px, 7vw, 84px); }
+    h1 span { color: var(--teal); }
+    .hero-copy { max-width: 570px; color: var(--muted); font-size: 19px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 22px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      font-weight: 700;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16,42,42,.12); }
+    .button.primary { border-color: var(--ink); background: var(--ink); color: white; }
+    .button.secondary { border-color: var(--line); background: white; }
+    .model-card {
+      position: relative;
+      min-height: 440px;
+      overflow: hidden;
+      border-radius: 34px;
+      background: linear-gradient(145deg, #b9ead5, #e9f6df);
+      box-shadow: var(--shadow);
+    }
+    .model-card::before, .model-card::after {
+      position: absolute;
+      border: 1px solid rgba(16,42,42,.18);
+      content: "";
+      transform: skewY(-28deg) rotate(14deg);
+    }
+    .model-card::before { inset: 90px 75px 80px 65px; background: rgba(255,255,255,.34); }
+    .model-card::after { inset: 155px 125px 118px 115px; background: rgba(23,107,100,.12); }
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      opacity: .42;
+      background-image: linear-gradient(rgba(23,107,100,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(23,107,100,.16) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(120deg, transparent 5%, black 40%, black 100%);
+    }
+    .card-label {
+      position: absolute;
+      right: 24px;
+      bottom: 22px;
+      left: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+    }
+    .card-label strong { font-family: "Space Grotesk", sans-serif; font-size: 24px; }
+    .card-label small { color: var(--teal); font-weight: 700; }
+    section { padding: 90px 0; }
+    .section-head { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 38px; }
+    h2 { max-width: 620px; margin: 0; font-size: clamp(36px, 5vw, 58px); }
+    .section-head p { max-width: 360px; margin: 0; color: var(--muted); }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .feature {
+      min-height: 240px;
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+    }
+    .feature-number { color: var(--teal); font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+    .feature h3 { margin: 46px 0 12px; font-size: 24px; letter-spacing: -.03em; }
+    .feature p { margin: 0; color: var(--muted); }
+    .roadmap { background: var(--ink); color: white; }
+    .roadmap .section-head p { color: #b4c8c0; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,.2); }
+    .step { min-height: 220px; padding: 26px; background: var(--ink); }
+    .step span { color: var(--lime); font-weight: 700; }
+    .step h3 { margin: 46px 0 12px; font-size: 23px; }
+    .step p { margin: 0; color: #b4c8c0; font-size: 15px; }
+    .cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      padding: 54px;
+      border-radius: 28px;
+      background: var(--lime);
+    }
+    .cta h2 { max-width: 650px; font-size: clamp(32px, 4vw, 48px); }
+    footer { padding: 28px 0 42px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 800px) {
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 35px; }
+      .model-card { min-height: 330px; }
+      .section-head, .cta { align-items: start; flex-direction: column; }
+      .features, .steps { grid-template-columns: 1fr; }
+      .step { min-height: 170px; }
+      .feature h3 { margin-top: 30px; }
+      .cta { padding: 34px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="brand" href="#">
+      <span class="brand-mark">⌂</span>
+      <span>Edificações BIM</span>
+    </a>
+    <nav class="nav-links" aria-label="Navegação principal">
+      <a href="#visao">Visão</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#roadmap">Roadmap</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="wrap hero">
+      <div>
+        <div class="eyebrow">Projeto aberto para construção</div>
+        <h1>Do primeiro traço ao <span>modelo BIM.</span></h1>
+        <p class="hero-copy">Uma plataforma brasileira para projetar, visualizar e organizar edificações em 3D — com um fluxo simples, acessível e pensado para quem constrói.</p>
+        <div class="actions">
+          <a class="button primary" href="#visao">Conheça o projeto</a>
+          <a class="button secondary" href="https://github.com/Gustavo1993PDF/edificacoes-bim">Ver no GitHub ↗</a>
+        </div>
+      </div>
+      <div class="model-card" aria-label="Ilustração abstrata de um modelo tridimensional">
+        <div class="grid-lines"></div>
+        <div class="card-label">
+          <strong>Construir melhor</strong>
+          <small>v0.1 · fundação</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" id="visao">
+      <div class="section-head">
+        <h2>Uma base sólida para ideias ambiciosas.</h2>
+        <p>O Edificações BIM começa pequeno: um núcleo leve para transformar intenção em geometria, documentação e decisões melhores.</p>
+      </div>
+      <div class="features" id="recursos">
+        <article class="feature">
+          <div class="feature-number">01 / MODELAGEM</div>
+          <h3>Desenhe em 3D</h3>
+          <p>Crie paredes, portas, janelas e ambientes com uma interface direta, inspirada na rotina de projetos.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-number">02 / ORGANIZAÇÃO</div>
+          <h3>Um modelo central</h3>
+          <p>Arquitetura, estrutura e instalações evoluem a partir da mesma informação espacial.</p>
+        </article>
+        <article class="feature">
+          <div class="feature-number">03 / EVOLUÇÃO</div>
+          <h3>Pronto para o BIM</h3>
+          <p>Comece com o essencial e avance para quantitativos, documentação e coordenação de disciplinas.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="roadmap" id="roadmap">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Primeiro, fazer o básico funcionar muito bem.</h2>
+          <p>Uma evolução em etapas reduz a complexidade e mantém cada versão útil para quem projeta e constrói.</p>
+        </div>
+        <div class="steps">
+          <article class="step"><span>FASE 01</span><h3>Geometria</h3><p>Paredes, linhas, retângulos e edição precisa.</p></article>
+          <article class="step"><span>FASE 02</span><h3>Elementos</h3><p>Portas, janelas, lajes, pilares e telhados.</p></article>
+          <article class="step"><span>FASE 03</span><h3>Informação</h3><p>Materiais, áreas, propriedades e quantitativos.</p></article>
+          <article class="step"><span>FASE 04</span><h3>Coordenação</h3><p>Arquitetura, estrutura e instalações no mesmo modelo.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="cta">
+        <h2>Edificações melhores começam com uma boa base.</h2>
+        <a class="button primary" href="https://github.com/Gustavo1993PDF/edificacoes-bim">Acompanhar no GitHub ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    © 2026 Edificações BIM · Modelagem acessível para arquitetura e engenharia.
+  </footer>
+</body>
+</html>
