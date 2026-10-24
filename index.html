@@ -3,267 +3,411 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Edificações BIM: modelagem, documentação e planejamento de projetos de construção em um único fluxo.">
-  <title>Edificações BIM | Projetos mais inteligentes</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0d171a">
+  <meta name="description" content="Edificações BIM: painel demonstrativo para visualizar modelos, terreno, estruturas e quantitativos.">
+  <title>Edificações BIM · Painel de projeto</title>
   <style>
     :root {
-      --ink: #102a2a;
-      --muted: #5e7472;
-      --paper: #f5f8f4;
-      --panel: #ffffff;
-      --mint: #c9efdc;
-      --lime: #c7ef69;
-      --teal: #176b64;
-      --line: #dbe8df;
-      --shadow: 0 24px 70px rgba(16, 42, 42, .12);
+      --bg: #f3f7f5;
+      --surface: #ffffff;
+      --surface-soft: #edf4f0;
+      --ink: #142629;
+      --muted: #6b7e7d;
+      --line: #dce8e2;
+      --dark: #0d171a;
+      --dark-2: #152629;
+      --teal: #1d7c70;
+      --teal-2: #49b8a0;
+      --lime: #c9f36d;
+      --orange: #f5a45c;
+      --red: #e7796f;
+      --blue: #73a9e8;
+      --shadow: 0 18px 45px rgba(20, 38, 41, .08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --sidebar: 254px;
     }
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
+      background: var(--bg);
       color: var(--ink);
-      background: var(--paper);
-      font-family: "DM Sans", sans-serif;
-      line-height: 1.6;
+      font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
     a { color: inherit; text-decoration: none; }
-    .wrap { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
-    .nav {
+    .app-shell { display: flex; min-height: 100vh; }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 10;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 24px 0;
+      width: var(--sidebar);
+      flex-direction: column;
+      padding: 28px 18px 18px;
+      background: var(--dark);
+      color: #d7e7e0;
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: "Space Grotesk", sans-serif;
-      font-weight: 700;
-      letter-spacing: -.03em;
-    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px; }
     .brand-mark {
       display: grid;
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
       place-items: center;
       border-radius: 12px;
-      color: var(--ink);
       background: var(--lime);
-      font-size: 20px;
+      color: var(--dark);
+      font-weight: 900;
+      font-size: 18px;
     }
-    .nav-links { display: flex; gap: 28px; color: var(--muted); font-size: 14px; }
-    .nav-links a:hover { color: var(--teal); }
-    .hero {
+    .brand strong { display: block; color: #fff; font-size: 15px; letter-spacing: -.02em; }
+    .brand small { color: #7d9990; font-size: 11px; }
+    .project-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 42px 0 20px;
+      padding: 12px;
+      border: 1px solid #263c3e;
+      border-radius: 14px;
+      background: #132124;
+      color: #e4f0eb;
+      text-align: left;
+    }
+    .project-switcher span { display: block; color: #7f9a93; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+    .project-switcher strong { font-size: 12px; }
+    .nav-label { padding: 0 12px 9px; color: #668079; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .nav { display: grid; gap: 5px; }
+    .nav-button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      border: 0;
+      border-radius: 11px;
+      background: transparent;
+      color: #94aaa4;
+      text-align: left;
+      transition: background .2s, color .2s, transform .2s;
+    }
+    .nav-button:hover { background: #1a3032; color: #fff; transform: translateX(2px); }
+    .nav-button.active { background: #214b48; color: #fff; box-shadow: inset 3px 0 var(--lime); }
+    .nav-icon { width: 19px; color: var(--teal-2); font-size: 16px; text-align: center; }
+    .sidebar-footer { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid #263638; color: #728c85; font-size: 11px; }
+    .sidebar-footer strong { display: block; margin-bottom: 4px; color: #d6e6df; font-size: 12px; }
+    .main { width: calc(100% - var(--sidebar)); margin-left: var(--sidebar); }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 78px;
+      padding: 16px 4vw;
+      border-bottom: 1px solid rgba(220, 232, 226, .8);
+      background: rgba(243, 247, 245, .88);
+      backdrop-filter: blur(14px);
+    }
+    .mobile-menu { display: none; border: 0; background: none; font-size: 23px; }
+    .breadcrumb { color: var(--muted); font-size: 12px; }
+    .breadcrumb strong { color: var(--ink); }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .icon-button, .avatar {
       display: grid;
-      grid-template-columns: 1.08fr .92fr;
-      gap: 70px;
-      align-items: center;
-      min-height: 650px;
-      padding: 60px 0 95px;
-    }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 20px;
-      color: var(--teal);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-    .eyebrow::before {
-      width: 28px;
-      height: 2px;
-      background: var(--lime);
-      content: "";
-    }
-    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; line-height: 1.08; letter-spacing: -.045em; }
-    h1 { max-width: 690px; margin: 0 0 24px; font-size: clamp(48px, 7vw, 84px); }
-    h1 span { color: var(--teal); }
-    .hero-copy { max-width: 570px; color: var(--muted); font-size: 19px; }
-    .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      padding: 0 22px;
-      border: 1px solid var(--ink);
-      border-radius: 999px;
-      font-weight: 700;
-      transition: transform .2s, box-shadow .2s, background .2s;
-    }
-    .button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16,42,42,.12); }
-    .button.primary { border-color: var(--ink); background: var(--ink); color: white; }
-    .button.secondary { border-color: var(--line); background: white; }
-    .model-card {
-      position: relative;
-      min-height: 440px;
-      overflow: hidden;
-      border-radius: 34px;
-      background: linear-gradient(145deg, #b9ead5, #e9f6df);
-      box-shadow: var(--shadow);
-    }
-    .model-card::before, .model-card::after {
-      position: absolute;
-      border: 1px solid rgba(16,42,42,.18);
-      content: "";
-      transform: skewY(-28deg) rotate(14deg);
-    }
-    .model-card::before { inset: 90px 75px 80px 65px; background: rgba(255,255,255,.34); }
-    .model-card::after { inset: 155px 125px 118px 115px; background: rgba(23,107,100,.12); }
-    .grid-lines {
-      position: absolute;
-      inset: 0;
-      opacity: .42;
-      background-image: linear-gradient(rgba(23,107,100,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(23,107,100,.16) 1px, transparent 1px);
-      background-size: 36px 36px;
-      mask-image: linear-gradient(120deg, transparent 5%, black 40%, black 100%);
-    }
-    .card-label {
-      position: absolute;
-      right: 24px;
-      bottom: 22px;
-      left: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-    }
-    .card-label strong { font-family: "Space Grotesk", sans-serif; font-size: 24px; }
-    .card-label small { color: var(--teal); font-weight: 700; }
-    section { padding: 90px 0; }
-    .section-head { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 38px; }
-    h2 { max-width: 620px; margin: 0; font-size: clamp(36px, 5vw, 58px); }
-    .section-head p { max-width: 360px; margin: 0; color: var(--muted); }
-    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    .feature {
-      min-height: 240px;
-      padding: 30px;
+      width: 36px;
+      height: 36px;
+      place-items: center;
       border: 1px solid var(--line);
-      border-radius: 22px;
-      background: var(--panel);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--muted);
     }
-    .feature-number { color: var(--teal); font-family: "Space Grotesk", sans-serif; font-weight: 700; }
-    .feature h3 { margin: 46px 0 12px; font-size: 24px; letter-spacing: -.03em; }
-    .feature p { margin: 0; color: var(--muted); }
-    .roadmap { background: var(--ink); color: white; }
-    .roadmap .section-head p { color: #b4c8c0; }
-    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,.2); }
-    .step { min-height: 220px; padding: 26px; background: var(--ink); }
-    .step span { color: var(--lime); font-weight: 700; }
-    .step h3 { margin: 46px 0 12px; font-size: 23px; }
-    .step p { margin: 0; color: #b4c8c0; font-size: 15px; }
-    .cta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 30px;
-      padding: 54px;
-      border-radius: 28px;
-      background: var(--lime);
+    .avatar { border: 0; background: var(--teal); color: #fff; font-size: 12px; font-weight: 800; }
+    .content { width: min(1440px, 100%); margin: 0 auto; padding: 42px 4vw 70px; }
+    .view { display: none; animation: rise .35s ease both; }
+    .view.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 30px; }
+    .eyebrow { margin: 0 0 8px; color: var(--teal); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { letter-spacing: -.04em; }
+    h1 { margin-bottom: 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.04; }
+    h2 { margin-bottom: 5px; font-size: 21px; }
+    h3 { margin-bottom: 4px; font-size: 15px; }
+    .page-heading p { max-width: 610px; margin: 0; color: var(--muted); }
+    .status-pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border-radius: 999px; background: #e2f5e8; color: #28734b; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .status-pill::before { width: 7px; height: 7px; border-radius: 50%; background: #4bb870; content: ""; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .metric, .panel, .table-panel { border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow); }
+    .metric { padding: 19px; }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; }
+    .metric-icon { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 10px; background: var(--surface-soft); color: var(--teal); font-weight: 800; }
+    .metric-value { margin: 15px 0 2px; font-size: 28px; font-weight: 800; letter-spacing: -.05em; }
+    .metric-detail { color: var(--muted); font-size: 11px; }
+    .metric-detail.up { color: var(--teal); }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, .85fr); gap: 20px; }
+    .panel { padding: 22px; }
+    .panel-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .panel-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .text-button { border: 0; background: transparent; color: var(--teal); font-size: 12px; font-weight: 800; }
+    .model-stage { position: relative; min-height: 340px; overflow: hidden; border-radius: 15px; background: linear-gradient(145deg, #dff4e7, #c7e5d7); }
+    .model-stage::before { position: absolute; inset: 0; background-image: linear-gradient(rgba(29,124,112,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(29,124,112,.15) 1px, transparent 1px); background-size: 30px 30px; content: ""; transform: perspective(520px) rotateX(57deg) scale(1.55) translateY(89px); transform-origin: center bottom; }
+    .building { position: absolute; width: 56%; height: 58%; left: 22%; bottom: 20%; transform: skewY(-26deg) rotate(7deg); border: 2px solid #287369; background: rgba(255, 255, 255, .52); box-shadow: 20px 16px 0 rgba(29,124,112,.13), 0 24px 36px rgba(36, 91, 79, .2); }
+    .building::before { position: absolute; inset: 16% 13%; border: 2px solid rgba(40,115,105,.75); background: repeating-linear-gradient(90deg, transparent 0 24px, rgba(40,115,105,.6) 25px 27px); content: ""; }
+    .building::after { position: absolute; right: -23%; bottom: -19%; width: 66%; height: 100%; border: 2px solid rgba(40,115,105,.6); background: rgba(255,255,255,.22); content: ""; transform: skewY(24deg); }
+    .stage-toolbar { position: absolute; top: 14px; left: 14px; display: flex; gap: 7px; }
+    .stage-tag { padding: 7px 9px; border: 1px solid rgba(255,255,255,.8); border-radius: 8px; background: rgba(255,255,255,.65); color: var(--teal); font-size: 11px; font-weight: 800; }
+    .legend { position: absolute; right: 14px; bottom: 14px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.8); border-radius: 10px; background: rgba(255,255,255,.75); color: var(--muted); font-size: 11px; }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; }
+    .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+    .dot.orange { background: var(--orange); }
+    .dot.blue { background: var(--blue); }
+    .activity { display: grid; gap: 15px; }
+    .activity-item { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; }
+    .activity-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; background: #e7f5ed; color: var(--teal); font-weight: 800; }
+    .activity-item strong { display: block; font-size: 12px; }
+    .activity-item small { color: var(--muted); font-size: 11px; }
+    .activity-time { color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .progress-row { display: grid; grid-template-columns: 100px 1fr 42px; gap: 10px; align-items: center; margin-top: 14px; color: var(--muted); font-size: 11px; }
+    .progress { height: 7px; overflow: hidden; border-radius: 99px; background: #e8efeb; }
+    .progress i { display: block; height: 100%; border-radius: inherit; background: var(--teal); }
+    .two-columns { display: grid; grid-template-columns: 1.25fr .75fr; gap: 20px; }
+    .model-viewer { display: grid; grid-template-columns: 1fr 240px; min-height: 520px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--dark-2); color: #d7e6df; }
+    .viewer-canvas { position: relative; min-height: 520px; overflow: hidden; background: radial-gradient(circle at 48% 42%, rgba(73,184,160,.23), transparent 33%), linear-gradient(145deg, #1c373a, #0d171a); }
+    .viewer-canvas::before { position: absolute; inset: 0; background-image: linear-gradient(rgba(111,177,154,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(111,177,154,.15) 1px, transparent 1px); background-size: 34px 34px; content: ""; transform: perspective(600px) rotateX(62deg) scale(1.8) translateY(100px); }
+    .viewer-building { position: absolute; top: 21%; left: 27%; width: 43%; height: 48%; border: 2px solid #93d6bd; background: rgba(127, 207, 179, .13); transform: skewY(-26deg) rotate(8deg); box-shadow: 27px 22px 0 rgba(73,184,160,.18), 0 25px 45px rgba(0,0,0,.4); }
+    .viewer-building::before { position: absolute; inset: 12%; border: 1px solid #7ac9ae; background: repeating-linear-gradient(90deg, transparent 0 29px, rgba(147,214,189,.7) 30px 32px), repeating-linear-gradient(0deg, transparent 0 26px, rgba(147,214,189,.7) 27px 29px); content: ""; }
+    .viewer-building::after { position: absolute; right: -30%; bottom: -22%; width: 73%; height: 100%; border: 2px solid #70bba3; background: rgba(127,207,179,.08); content: ""; transform: skewY(24deg); }
+    .axis { position: absolute; right: 22px; bottom: 22px; color: #9bcbbb; font-size: 11px; line-height: 1.9; }
+    .axis b { color: var(--lime); }
+    .viewer-sidebar { padding: 18px; border-left: 1px solid #30494a; background: #132326; }
+    .viewer-sidebar h3 { color: #fff; }
+    .layer-list { display: grid; gap: 9px; margin: 20px 0 26px; }
+    .layer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px; border-radius: 9px; background: #1d3436; color: #bdd0c8; font-size: 11px; }
+    .layer.active { outline: 1px solid var(--teal-2); color: #fff; }
+    .layer-left { display: flex; align-items: center; gap: 8px; }
+    .checkbox { width: 10px; height: 10px; border-radius: 3px; background: var(--teal-2); }
+    .checkbox.orange { background: var(--orange); }
+    .checkbox.blue { background: var(--blue); }
+    .property-list { display: grid; gap: 12px; margin-top: 12px; }
+    .property { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid #30494a; padding-bottom: 8px; font-size: 11px; }
+    .property span { color: #78938b; }
+    .property strong { color: #edf7f1; font-weight: 600; text-align: right; }
+    .map-card { position: relative; min-height: 500px; overflow: hidden; border-radius: var(--radius-lg); background: #d8eadb; }
+    .map-card::before { position: absolute; inset: -20%; background: repeating-linear-gradient(28deg, transparent 0 45px, rgba(75,139,102,.13) 46px 49px), repeating-linear-gradient(-28deg, transparent 0 70px, rgba(75,139,102,.1) 71px 74px); content: ""; transform: rotate(-5deg); }
+    .contour { position: absolute; border: 2px solid rgba(54,127,84,.28); border-radius: 50%; transform: rotate(-14deg); }
+    .contour.one { inset: 13% 11% 20% 14%; }
+    .contour.two { inset: 22% 19% 29% 24%; }
+    .contour.three { inset: 31% 28% 38% 34%; }
+    .road { position: absolute; width: 120%; height: 34px; top: 48%; left: -10%; background: #e9d9b4; transform: rotate(-14deg); box-shadow: 0 0 0 5px rgba(255,255,255,.35); }
+    .site { position: absolute; top: 37%; left: 48%; display: grid; width: 100px; height: 78px; place-items: center; border: 2px solid #fff; background: rgba(29,124,112,.84); color: #fff; box-shadow: 0 9px 20px rgba(21,75,59,.28); transform: rotate(-14deg); }
+    .site::before { position: absolute; width: 11px; height: 11px; border: 3px solid #fff; border-radius: 50%; background: var(--orange); content: ""; }
+    .map-label { position: absolute; padding: 5px 8px; border-radius: 6px; background: rgba(255,255,255,.76); color: #45675b; font-size: 10px; }
+    .map-label.top { top: 16%; left: 19%; }
+    .map-label.right { right: 14%; bottom: 19%; }
+    .map-controls { position: absolute; top: 16px; right: 16px; display: grid; gap: 6px; }
+    .map-controls button, .map-legend { border: 1px solid rgba(255,255,255,.8); background: rgba(255,255,255,.83); color: var(--ink); }
+    .map-controls button { width: 32px; height: 32px; border-radius: 8px; font-weight: 800; }
+    .map-legend { position: absolute; right: 16px; bottom: 16px; padding: 10px; border-radius: 10px; font-size: 11px; }
+    .map-legend div { display: flex; align-items: center; gap: 7px; margin: 4px 0; }
+    .map-legend i { width: 12px; height: 4px; border-radius: 3px; background: #e9d9b4; }
+    .map-legend i.site-key { height: 10px; border-radius: 50%; background: var(--teal); }
+    .table-panel { overflow: hidden; }
+    .table-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+    .search { width: min(270px, 100%); padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; outline: 0; background: var(--surface-soft); color: var(--ink); }
+    .search:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(29,124,112,.12); }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { padding: 14px 20px; border-bottom: 1px solid #edf2ef; text-align: left; }
+    .data-table th { color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .data-table td { font-size: 12px; }
+    .data-table tbody tr:hover { background: #f7fbf8; }
+    .tag { display: inline-flex; padding: 4px 7px; border-radius: 6px; background: #e7f5ed; color: var(--teal); font-size: 10px; font-weight: 800; }
+    .tag.orange { background: #fff0de; color: #a9631d; }
+    .settings { display: grid; max-width: 820px; gap: 14px; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+    .setting-row strong { display: block; margin-bottom: 3px; }
+    .setting-row p { margin: 0; color: var(--muted); font-size: 12px; }
+    .toggle { position: relative; width: 40px; height: 23px; flex: 0 0 auto; border: 0; border-radius: 99px; background: #c9d6d0; }
+    .toggle::after { position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: #fff; content: ""; transition: transform .2s; }
+    .toggle.on { background: var(--teal); }
+    .toggle.on::after { transform: translateX(17px); }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 20; max-width: 320px; padding: 13px 16px; border-radius: 11px; background: var(--dark); color: #fff; box-shadow: 0 12px 30px rgba(0,0,0,.2); font-size: 12px; opacity: 0; pointer-events: none; transform: translateY(10px); transition: .25s; }
+    .toast.show { opacity: 1; transform: none; }
+    @media (max-width: 1050px) {
+      :root { --sidebar: 220px; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .dashboard-grid, .two-columns { grid-template-columns: 1fr; }
     }
-    .cta h2 { max-width: 650px; font-size: clamp(32px, 4vw, 48px); }
-    footer { padding: 28px 0 42px; color: var(--muted); font-size: 14px; }
-    @media (max-width: 800px) {
-      .nav-links { display: none; }
-      .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 35px; }
-      .model-card { min-height: 330px; }
-      .section-head, .cta { align-items: start; flex-direction: column; }
-      .features, .steps { grid-template-columns: 1fr; }
-      .step { min-height: 170px; }
-      .feature h3 { margin-top: 30px; }
-      .cta { padding: 34px 28px; }
+    @media (max-width: 720px) {
+      :root { --sidebar: 0px; }
+      .sidebar { width: 250px; transform: translateX(-100%); transition: transform .25s; box-shadow: 12px 0 30px rgba(0,0,0,.15); }
+      .sidebar.open { transform: none; }
+      .main { width: 100%; margin-left: 0; }
+      .topbar { padding: 14px 20px; }
+      .mobile-menu { display: block; }
+      .breadcrumb { display: none; }
+      .content { padding: 30px 20px 50px; }
+      .page-heading { display: block; }
+      .page-heading .status-pill { margin-top: 15px; }
+      .metric-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .metric { padding: 14px; }
+      .metric-value { font-size: 23px; }
+      .panel { padding: 16px; }
+      .model-viewer { display: block; }
+      .viewer-canvas { min-height: 360px; }
+      .viewer-sidebar { border-top: 1px solid #30494a; border-left: 0; }
+      .table-toolbar { display: block; }
+      .search { margin-top: 12px; }
+      .data-table { min-width: 620px; }
+      .table-panel { overflow-x: auto; }
+    }
+    @media (max-width: 420px) {
+      .metric-grid { grid-template-columns: 1fr; }
+      .activity-item { grid-template-columns: 34px 1fr; }
+      .activity-time { display: none; }
     }
   </style>
 </head>
 <body>
-  <header class="wrap nav">
-    <a class="brand" href="#">
-      <span class="brand-mark">⌂</span>
-      <span>Edificações BIM</span>
-    </a>
-    <nav class="nav-links" aria-label="Navegação principal">
-      <a href="#visao">Visão</a>
-      <a href="#recursos">Recursos</a>
-      <a href="#roadmap">Roadmap</a>
-    </nav>
-  </header>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#visao-geral" data-view="visao-geral">
+        <span class="brand-mark">⌂</span>
+        <span><strong>Edificações BIM</strong><small>painel de projeto</small></span>
+      </a>
+      <button class="project-switcher" type="button" data-toast="Seletor de projetos demonstrativo.">
+        <span><span>Projeto ativo</span><strong>Residência Horizonte</strong></span><b>⌄</b>
+      </button>
+      <div class="nav-label">Workspace</div>
+      <nav class="nav" aria-label="Navegação principal">
+        <button class="nav-button active" type="button" data-view="visao-geral"><span class="nav-icon">⌂</span>Visão geral</button>
+        <button class="nav-button" type="button" data-view="modelo-3d"><span class="nav-icon">◇</span>Modelo 3D</button>
+        <button class="nav-button" type="button" data-view="mapa"><span class="nav-icon">⌖</span>Mapa</button>
+        <button class="nav-button" type="button" data-view="estruturas"><span class="nav-icon">▦</span>Estruturas</button>
+        <button class="nav-button" type="button" data-view="quantitativos"><span class="nav-icon">▤</span>Quantitativos</button>
+        <button class="nav-button" type="button" data-view="configuracoes"><span class="nav-icon">⚙</span>Configurações</button>
+      </nav>
+      <div class="sidebar-footer"><strong>Edificações BIM v0.1</strong>Dados locais para demonstração · sem backend</div>
+    </aside>
 
-  <main>
-    <section class="wrap hero">
-      <div>
-        <div class="eyebrow">Projeto aberto para construção</div>
-        <h1>Do primeiro traço ao <span>modelo BIM.</span></h1>
-        <p class="hero-copy">Uma plataforma brasileira para projetar, visualizar e organizar edificações em 3D — com um fluxo simples, acessível e pensado para quem constrói.</p>
-        <div class="actions">
-          <a class="button primary" href="#visao">Conheça o projeto</a>
-          <a class="button secondary" href="https://github.com/Gustavo1993PDF/edificacoes-bim">Ver no GitHub ↗</a>
+    <div class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Abrir menu">☰</button>
+        <div class="breadcrumb">Projetos / <strong id="breadcrumb-view">Visão geral</strong></div>
+        <div class="top-actions">
+          <button class="icon-button" type="button" data-toast="Nenhuma notificação nova.">♧</button>
+          <button class="avatar" type="button" data-toast="Perfil de demonstração">GP</button>
         </div>
-      </div>
-      <div class="model-card" aria-label="Ilustração abstrata de um modelo tridimensional">
-        <div class="grid-lines"></div>
-        <div class="card-label">
-          <strong>Construir melhor</strong>
-          <small>v0.1 · fundação</small>
-        </div>
-      </div>
-    </section>
+      </header>
 
-    <section class="wrap" id="visao">
-      <div class="section-head">
-        <h2>Uma base sólida para ideias ambiciosas.</h2>
-        <p>O Edificações BIM começa pequeno: um núcleo leve para transformar intenção em geometria, documentação e decisões melhores.</p>
-      </div>
-      <div class="features" id="recursos">
-        <article class="feature">
-          <div class="feature-number">01 / MODELAGEM</div>
-          <h3>Desenhe em 3D</h3>
-          <p>Crie paredes, portas, janelas e ambientes com uma interface direta, inspirada na rotina de projetos.</p>
-        </article>
-        <article class="feature">
-          <div class="feature-number">02 / ORGANIZAÇÃO</div>
-          <h3>Um modelo central</h3>
-          <p>Arquitetura, estrutura e instalações evoluem a partir da mesma informação espacial.</p>
-        </article>
-        <article class="feature">
-          <div class="feature-number">03 / EVOLUÇÃO</div>
-          <h3>Pronto para o BIM</h3>
-          <p>Comece com o essencial e avance para quantitativos, documentação e coordenação de disciplinas.</p>
-        </article>
-      </div>
-    </section>
+      <main class="content">
+        <section class="view active" id="view-visao-geral">
+          <div class="page-heading">
+            <div><p class="eyebrow">Sexta-feira, 24 de outubro de 2026</p><h1>Bom dia, Gustavo.</h1><p>Uma leitura rápida do andamento da <strong>Residência Horizonte</strong>.</p></div>
+            <span class="status-pill">Sincronizado há 2 min</span>
+          </div>
+          <div class="metric-grid">
+            <article class="metric"><div class="metric-top"><span>Progresso do projeto</span><span class="metric-icon">↗</span></div><div class="metric-value">68%</div><span class="metric-detail up">+12% este mês</span></article>
+            <article class="metric"><div class="metric-top"><span>Área construída</span><span class="metric-icon">□</span></div><div class="metric-value">248,5 <small>m²</small></div><span class="metric-detail">Em 2 pavimentos</span></article>
+            <article class="metric"><div class="metric-top"><span>Elementos modelados</span><span class="metric-icon">◇</span></div><div class="metric-value">1.284</div><span class="metric-detail up">+46 desde ontem</span></article>
+            <article class="metric"><div class="metric-top"><span>Alertas de coordenação</span><span class="metric-icon">!</span></div><div class="metric-value">04</div><span class="metric-detail">2 requerem atenção</span></article>
+          </div>
+          <div class="dashboard-grid">
+            <article class="panel"><div class="panel-head"><div><h2>Modelo federado</h2><p>Vista isométrica · atualização automática</p></div><button class="text-button" type="button" data-view-target="modelo-3d">Abrir modelo ↗</button></div><div class="model-stage"><div class="stage-toolbar"><span class="stage-tag">ISOMÉTRICA</span><span class="stage-tag">LOD 300</span></div><div class="building"></div><div class="legend"><span><i class="dot"></i> Arquitetura</span><span><i class="dot orange"></i> Estrutura</span><span><i class="dot blue"></i> Terreno</span></div></div></article>
+            <article class="panel"><div class="panel-head"><div><h2>Atividade recente</h2><p>Últimas alterações no projeto</p></div><button class="text-button" type="button" data-toast="Histórico completo ainda não disponível.">Ver tudo</button></div><div class="activity"><div class="activity-item"><span class="activity-icon">◇</span><div><strong>Modelo arquitetônico atualizado</strong><small>Marina adicionou 12 esquadrias</small></div><span class="activity-time">há 12 min</span></div><div class="activity-item"><span class="activity-icon">▦</span><div><strong>Revisão estrutural concluída</strong><small>Compatibilização sem conflitos críticos</small></div><span class="activity-time">há 1 h</span></div><div class="activity-item"><span class="activity-icon">⌖</span><div><strong>Topografia importada</strong><small>Superfície TIN · precisão 2 cm</small></div><span class="activity-time">ontem</span></div><div class="activity-item"><span class="activity-icon">!</span><div><strong>2 pontos para revisar</strong><small>Interferências entre instalações e vigas</small></div><span class="activity-time">ontem</span></div></div><div style="margin-top:25px"><h3>Progresso por disciplina</h3><div class="progress-row"><span>Arquitetura</span><div class="progress"><i style="width:82%"></i></div><b>82%</b></div><div class="progress-row"><span>Estruturas</span><div class="progress"><i style="width:64%;background:var(--orange)"></i></div><b>64%</b></div><div class="progress-row"><span>Instalações</span><div class="progress"><i style="width:41%;background:var(--blue)"></i></div><b>41%</b></div></div></article>
+          </div>
+        </section>
 
-    <section class="roadmap" id="roadmap">
-      <div class="wrap">
-        <div class="section-head">
-          <h2>Primeiro, fazer o básico funcionar muito bem.</h2>
-          <p>Uma evolução em etapas reduz a complexidade e mantém cada versão útil para quem projeta e constrói.</p>
-        </div>
-        <div class="steps">
-          <article class="step"><span>FASE 01</span><h3>Geometria</h3><p>Paredes, linhas, retângulos e edição precisa.</p></article>
-          <article class="step"><span>FASE 02</span><h3>Elementos</h3><p>Portas, janelas, lajes, pilares e telhados.</p></article>
-          <article class="step"><span>FASE 03</span><h3>Informação</h3><p>Materiais, áreas, propriedades e quantitativos.</p></article>
-          <article class="step"><span>FASE 04</span><h3>Coordenação</h3><p>Arquitetura, estrutura e instalações no mesmo modelo.</p></article>
-        </div>
-      </div>
-    </section>
+        <section class="view" id="view-modelo-3d">
+          <div class="page-heading"><div><p class="eyebrow">Coordenação espacial</p><h1>Modelo 3D</h1><p>Navegue pelas disciplinas e selecione elementos para consultar propriedades.</p></div><span class="status-pill">1.284 elementos visíveis</span></div>
+          <div class="model-viewer"><div class="viewer-canvas"><div class="stage-toolbar"><span class="stage-tag">ÓRBITA LIVRE</span><span class="stage-tag">PAVIMENTO TÉRREO</span></div><div class="viewer-building"></div><div class="axis"><b>Z</b>  ↑<br><b>Y</b>  → &nbsp; <b>X</b> ↗</div></div><aside class="viewer-sidebar"><h3>Camadas do modelo</h3><div class="layer-list"><button class="layer active" type="button" data-layer="Arquitetura"><span class="layer-left"><i class="checkbox"></i>Arquitetura</span><b>842</b></button><button class="layer active" type="button" data-layer="Estruturas"><span class="layer-left"><i class="checkbox orange"></i>Estruturas</span><b>268</b></button><button class="layer active" type="button" data-layer="Instalações"><span class="layer-left"><i class="checkbox blue"></i>Instalações</span><b>174</b></button></div><h3>Elemento selecionado</h3><div class="property-list"><div class="property"><span>Categoria</span><strong id="selected-category">Parede</strong></div><div class="property"><span>ID</span><strong id="selected-id">ARQ-0342</strong></div><div class="property"><span>Material</span><strong id="selected-material">Concreto aparente</strong></div><div class="property"><span>Área</span><strong id="selected-area">18,40 m²</strong></div><div class="property"><span>Fase</span><strong>Existente</strong></div></div><button class="text-button" style="padding:18px 0 0" type="button" data-toast="Detalhamento do elemento disponível na próxima versão.">Ver ficha completa ↗</button></aside></div>
+        </section>
 
-    <section class="wrap">
-      <div class="cta">
-        <h2>Edificações melhores começam com uma boa base.</h2>
-        <a class="button primary" href="https://github.com/Gustavo1993PDF/edificacoes-bim">Acompanhar no GitHub ↗</a>
-      </div>
-    </section>
-  </main>
+        <section class="view" id="view-mapa">
+          <div class="page-heading"><div><p class="eyebrow">Contexto do terreno</p><h1>Mapa e terreno</h1><p>Consulte implantação, curvas de nível e referências do lote.</p></div><span class="status-pill">Terreno importado</span></div>
+          <div class="two-columns"><article class="panel"><div class="panel-head"><div><h2>Implantação do projeto</h2><p>Coordenadas locais · SIRGAS 2000 / UTM 23S</p></div><button class="text-button" type="button" data-toast="Exportação de mapa demonstrativa.">Exportar</button></div><div class="map-card"><div class="contour one"></div><div class="contour two"></div><div class="contour three"></div><div class="road"></div><div class="site">LOTE 01</div><span class="map-label top">NORTE ↑</span><span class="map-label right">Curva 742 m</span><div class="map-controls"><button type="button" data-map-zoom="in">+</button><button type="button" data-map-zoom="out">−</button></div><div class="map-legend"><div><i class="site-key"></i> Edificação</div><div><i></i> Via de acesso</div></div></div></article><article class="panel"><div class="panel-head"><div><h2>Camadas do terreno</h2><p>Ative ou desative informações contextuais</p></div></div><div class="layer-list" style="margin-top:0"><button class="layer active" type="button" data-toast="Camada de topografia ativada."><span class="layer-left"><i class="checkbox"></i>Topografia</span><b>742–758 m</b></button><button class="layer active" type="button" data-toast="Camada de implantação ativada."><span class="layer-left"><i class="checkbox orange"></i>Implantação</span><b>248,5 m²</b></button><button class="layer active" type="button" data-toast="Camada de acessos ativada."><span class="layer-left"><i class="checkbox blue"></i>Acessos e vias</span><b>03 itens</b></button></div><h3 style="margin-top:30px">Resumo do lote</h3><div class="property-list"><div class="property"><span>Área total</span><strong>612,00 m²</strong></div><div class="property"><span>Testada</span><strong>18,00 m</strong></div><div class="property"><span>Declividade média</span><strong>8,4%</strong></div><div class="property"><span>Orientação</span><strong>Norte verdadeiro</strong></div></div></article></div>
+        </section>
 
-  <footer class="wrap">
-    © 2026 Edificações BIM · Modelagem acessível para arquitetura e engenharia.
-  </footer>
+        <section class="view" id="view-estruturas">
+          <div class="page-heading"><div><p class="eyebrow">Disciplina estrutural</p><h1>Estruturas</h1><p>Visão demonstrativa do sistema estrutural e dos elementos principais.</p></div><span class="status-pill">Compatibilização em dia</span></div>
+          <div class="metric-grid"><article class="metric"><div class="metric-top"><span>Pilares</span><span class="metric-icon">▥</span></div><div class="metric-value">42</div><span class="metric-detail">12,6 m³ de concreto</span></article><article class="metric"><div class="metric-top"><span>Vigas</span><span class="metric-icon">━</span></div><div class="metric-value">68</div><span class="metric-detail">184,2 m lineares</span></article><article class="metric"><div class="metric-top"><span>Lajes</span><span class="metric-icon">▤</span></div><div class="metric-value">06</div><span class="metric-detail">248,5 m² modelados</span></article><article class="metric"><div class="metric-top"><span>Conflitos</span><span class="metric-icon">✓</span></div><div class="metric-value">02</div><span class="metric-detail">Pendentes de revisão</span></article></div>
+          <div class="two-columns"><article class="panel"><div class="panel-head"><div><h2>Esquema estrutural</h2><p>Malha de eixos · nível 0,00</p></div></div><div class="model-stage" style="min-height:390px;background:linear-gradient(145deg,#fff1df,#f7e1c7)"><div class="grid-lines" style="opacity:.3"></div><div class="building" style="border-color:#b36d35;background:rgba(255,255,255,.38);box-shadow:20px 16px 0 rgba(205,126,55,.2),0 24px 36px rgba(130,71,26,.18)"></div><div class="legend"><span><i class="dot orange"></i> Pórtico estrutural</span><span><i class="dot"></i> Eixos</span></div></div></article><article class="panel"><div class="panel-head"><div><h2>Revisões pendentes</h2><p>Itens que precisam de decisão</p></div></div><div class="activity"><div class="activity-item"><span class="activity-icon" style="background:#fff0de;color:#a9631d">!</span><div><strong>Viga V-018 × duto HVAC</strong><small>Conflito no pavimento superior</small></div><span class="activity-time">Alta</span></div><div class="activity-item"><span class="activity-icon" style="background:#fff0de;color:#a9631d">!</span><div><strong>Pilar P-07 fora do eixo</strong><small>Deslocamento de 4,2 cm</small></div><span class="activity-time">Média</span></div></div></article></div>
+        </section>
+
+        <section class="view" id="view-quantitativos">
+          <div class="page-heading"><div><p class="eyebrow">Dados para decisão</p><h1>Quantitativos</h1><p>Extraia uma leitura rápida dos principais insumos do modelo.</p></div><button class="status-pill" type="button" data-toast="Planilha demonstrativa pronta para exportação.">Baixar relatório ↓</button></div>
+          <div class="table-panel"><div class="table-toolbar"><div><h2 style="margin:0">Resumo de materiais</h2><small style="color:var(--muted)">Atualizado com o modelo de 24/10/2026</small></div><input class="search" type="search" placeholder="Filtrar material..." aria-label="Filtrar material"></div><table class="data-table"><thead><tr><th>Material</th><th>Categoria</th><th>Unidade</th><th>Quantidade</th><th>Variação</th></tr></thead><tbody id="quantities-body"><tr><td><strong>Concreto estrutural C30</strong></td><td><span class="tag orange">Estrutura</span></td><td>m³</td><td>38,70</td><td class="metric-detail up">+2,4%</td></tr><tr><td><strong>Alvenaria cerâmica 14 cm</strong></td><td><span class="tag">Arquitetura</span></td><td>m²</td><td>412,30</td><td class="metric-detail">0,0%</td></tr><tr><td><strong>Esquadria de alumínio</strong></td><td><span class="tag">Arquitetura</span></td><td>un.</td><td>24</td><td class="metric-detail up">+3 un.</td></tr><tr><td><strong>Aço CA-50</strong></td><td><span class="tag orange">Estrutura</span></td><td>kg</td><td>4.820</td><td class="metric-detail">-1,8%</td></tr><tr><td><strong>Piso vinílico</strong></td><td><span class="tag">Acabamento</span></td><td>m²</td><td>186,50</td><td class="metric-detail up">+12,5%</td></tr></tbody></table></div>
+        </section>
+
+        <section class="view" id="view-configuracoes">
+          <div class="page-heading"><div><p class="eyebrow">Preferências do workspace</p><h1>Configurações</h1><p>Personalize a experiência local do painel demonstrativo.</p></div></div>
+          <div class="settings"><div class="setting-row"><div><strong>Atualização automática</strong><p>Atualiza os cartões de atividade ao abrir o painel.</p></div><button class="toggle on" type="button" aria-label="Alternar atualização automática"></button></div><div class="setting-row"><div><strong>Exibir camadas por disciplina</strong><p>Organiza o modelo 3D por arquitetura, estrutura e instalações.</p></div><button class="toggle on" type="button" aria-label="Alternar camadas por disciplina"></button></div><div class="setting-row"><div><strong>Modo compacto</strong><p>Reduz espaçamentos para exibir mais informações na tela.</p></div><button class="toggle" type="button" aria-label="Alternar modo compacto"></button></div><div class="setting-row"><div><strong>Unidade de medida</strong><p>Unidades usadas nos quantitativos e propriedades.</p></div><button class="text-button" type="button" data-toast="Unidade atual: sistema métrico (m, m², m³).">m, m², m³&nbsp;⌄</button></div></div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    (() => {
+      const labels = {
+        "visao-geral": "Visão geral",
+        "modelo-3d": "Modelo 3D",
+        mapa: "Mapa",
+        estruturas: "Estruturas",
+        quantitativos: "Quantitativos",
+        configuracoes: "Configurações"
+      };
+      const buttons = [...document.querySelectorAll("[data-view]")];
+      const views = [...document.querySelectorAll(".view")];
+      const breadcrumb = document.querySelector("#breadcrumb-view");
+      const sidebar = document.querySelector("#sidebar");
+      const toast = document.querySelector("#toast");
+      let toastTimer;
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+      }
+
+      function showView(viewName, updateHash = true) {
+        if (!labels[viewName]) return;
+        views.forEach(view => view.classList.toggle("active", view.id === `view-${viewName}`));
+        buttons.forEach(button => button.classList.toggle("active", button.dataset.view === viewName));
+        breadcrumb.textContent = labels[viewName];
+        sidebar.classList.remove("open");
+        if (updateHash) history.replaceState(null, "", `#${viewName}`);
+      }
+
+      buttons.forEach(button => button.addEventListener("click", () => showView(button.dataset.view)));
+      document.querySelectorAll("[data-view-target]").forEach(button => button.addEventListener("click", () => showView(button.dataset.viewTarget)));
+      document.querySelectorAll("[data-toast]").forEach(button => button.addEventListener("click", () => showToast(button.dataset.toast)));
+      document.querySelector("#mobile-menu").addEventListener("click", () => sidebar.classList.toggle("open"));
+      document.querySelectorAll(".toggle").forEach(toggle => toggle.addEventListener("click", () => {
+        toggle.classList.toggle("on");
+        showToast(toggle.classList.contains("on") ? "Preferência ativada." : "Preferência desativada.");
+      }));
+      document.querySelectorAll(".layer").forEach(layer => layer.addEventListener("click", () => {
+        layer.classList.toggle("active");
+        const name = layer.dataset.layer || layer.textContent.trim().split(/\s{2,}/)[0];
+        showToast(`${name} ${layer.classList.contains("active") ? "visível" : "oculta"}.`);
+      }));
+      document.querySelectorAll("[data-map-zoom]").forEach(button => button.addEventListener("click", () => {
+        showToast(button.dataset.mapZoom === "in" ? "Zoom aproximado." : "Zoom afastado.");
+      }));
+      document.querySelector(".search").addEventListener("input", event => {
+        const query = event.target.value.toLowerCase();
+        document.querySelectorAll("#quantities-body tr").forEach(row => row.hidden = !row.textContent.toLowerCase().includes(query));
+      });
+      const hash = location.hash.slice(1);
+      showView(labels[hash] ? hash : "visao-geral", false);
+    })();
+  </script>
 </body>
 </html>
